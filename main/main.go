@@ -5,13 +5,13 @@ import (
 	"database/sql"
 	"time"
 
-	jwt "github.com/appleboy/gin-jwt"
+	ginjwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
-	JWTmw *jwt.GinJWTMiddleware
+	JWTmw *ginjwt.GinJWTMiddleware
 )
 
 func main() {
@@ -26,20 +26,21 @@ func main() {
 
 	adminCon.RegisterRouter(router)
 
-	JWTmw = &jwt.GinJWTMiddleware{
-
-		Realm:   "Template",
-		Key:     []byte("hydra"),
-		Timeout: 24 * time.Hour,
+	authMiddleware := &ginjwt.GinJWTMiddleware{
+		Realm:            "Template",
+		Key:              []byte("hydra"),
+		Timeout:          24 * time.Hour,
+		SigningAlgorithm: "HS256",
 	}
 
-	adminCon.EmbodyJWTMiddleWare(JWTmw)
+	// getuid
+	GetUID := adminCon.EmbodyJWTMiddleWare(authMiddleware)
 
-	router.POST("/api/v1/admin/login", JWTmw.LoginHandler)
-
-	router.Use(func(c *gin.Context) {
-		JWTmw.MiddlewareFunc()(c)
+	router.POST("/api/v1/admin/login", authMiddleware.LoginHandler)
+	router.Use(func(ctx *gin.Context) {
+		authMiddleware.MiddlewareFunc()
 	})
+	router.Use(adminCon.CheckIsActive(GetUID))
 
 	router.Run(":8080")
 

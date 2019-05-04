@@ -2,61 +2,71 @@ package gin
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	mysql "Miuer/admin/model/mysql"
 
-	jwt "github.com/appleboy/gin-jwt"
+	ginjwt "github.com/appleboy/gin-jwt"
+	gojwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
 var (
-	ErrUserIdNoExist = errors.New("user Id no exist!")
+	errUserIdNoExists = errors.New("user id no exists")
 )
 
-func (c *controller) EmbodyJWTMiddleWare(JWT *jwt.GinJWTMiddleware) func(ctx *gin.Context) (uint32, error) {
-
-	// get identity at first logging
-	JWT.Authenticator = func(ctx *gin.Context) (interface{}, error) {
+func (c *controller) EmbodyJWTMiddleWare(authMW *ginjwt.GinJWTMiddleware) func(ctx *gin.Context) (uint32, error) {
+	authMW.Authenticator = func(ctx *gin.Context) (interface{}, error) {
 		return c.Login(ctx)
 	}
 
-	// add identity to MapClaims
-	JWT.PayloadFunc = func(data interface{}) jwt.MapClaims {
-		return jwt.MapClaims{
-			"userId": data,
+	//err
+	fmt.Println("111")
+	authMW.PayloadFunc = func(data interface{}) ginjwt.MapClaims {
+		if v, ok := data.(uint32); ok {
+			return ginjwt.MapClaims{
+				"identity": uint32(v),
+			}
 		}
+		return ginjwt.MapClaims{}
 	}
 
-	// 	add identity to Context
-	JWT.IdentityHandler = func(ctx *gin.Context) interface{} {
-		claims := jwt.ExtractClaims(ctx)
-		return claims["userId"]
+	authMW.IdentityHandler = func(ctx *gin.Context) interface{} {
+		claims := gojwt.MapClaims(ginjwt.ExtractClaims(ctx))
+		return claims["identity"]
 	}
 
 	return func(ctx *gin.Context) (uint32, error) {
-		id, ok := ctx.Get("userId")
-		if ok != true {
-			return 0, ErrUserIdNoExist
+		Id, exists := ctx.Get("identity")
+		if !exists {
+			return 0, errUserIdNoExists
 		}
 
-		return id.(uint32), nil
+		// why ?!
+		ID := Id.(float64)
+		return uint32(ID), nil
 	}
 }
 
-func (c *controller) CheckIsActive(ctx *gin.Context) bool {
-	id, ok := ctx.Get("userId")
-	if ok != true {
-		panic(ErrUserIdNoExist)
+func (c *controller) CheckIsActive(GetUID func(ctx *gin.Context) (uint32, error)) func(ctx *gin.Context) {
+	return func(ctx *gin.Context) {
+		id, err := GetUID(ctx)
+		if err != nil {
+			ctx.AbortWithError(http.StatusBadGateway, err)
+			return
+		}
+
+		active, err := mysql.IsActive(c.db, id)
+		if err != nil {
+			ctx.AbortWithError(http.StatusConflict, err)
+			return
+		}
+
+		if !active {
+			ctx.AbortWithError(http.StatusFailedDependency, err)
+			return
+		}
+
 	}
-
-	isactive, err := mysql.IsActive(c.SQLStore(), id.(uint32))
-	if err != nil {
-		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest})
-		return false
-	}
-
-	return isactive
-
 }
