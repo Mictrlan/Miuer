@@ -89,7 +89,7 @@ func LisitValidBannerByUnixDate(db *sql.DB, unixtime int64) ([]*Banner, error) {
 		edate     string
 	)
 
-	rows, err := db.Query(bannerSqlString[mysqlBannerLisitDate], unixtime)
+	rows, err := db.Query(bannerSqlString[mysqlBannerLisitDate], unixtime, unixtime)
 	if err != nil {
 		return nil, err
 	}
