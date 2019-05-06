@@ -2,8 +2,8 @@ package main
 
 import (
 	admin "Miuer/admin/controller/gin"
+	banner "Miuer/banner/controller/gin"
 	"database/sql"
-	"time"
 
 	ginjwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
@@ -23,24 +23,27 @@ func main() {
 	}
 
 	adminCon := admin.New(dbConn)
-
 	adminCon.RegisterRouter(router)
 
-	authMiddleware := &ginjwt.GinJWTMiddleware{
-		Realm:            "Template",
-		Key:              []byte("hydra"),
-		Timeout:          24 * time.Hour,
-		SigningAlgorithm: "HS256",
-	}
+	/*
+		authMiddleware := &ginjwt.GinJWTMiddleware{
+			Realm:            "Template",
+			Key:              []byte("hydra"),
+			Timeout:          24 * time.Hour,
+			SigningAlgorithm: "HS256",
+		}
 
-	// getuid
-	GetUID := adminCon.EmbodyJWTMiddleWare(authMiddleware)
+			// getuid
+			GetUID := adminCon.EmbodyJWTMiddleWare(authMiddleware)
 
-	router.POST("/api/v1/admin/login", authMiddleware.LoginHandler)
-	router.Use(func(ctx *gin.Context) {
-		authMiddleware.MiddlewareFunc()
-	})
-	router.Use(adminCon.CheckIsActive(GetUID))
+			router.POST("/api/v1/admin/login", authMiddleware.LoginHandler)
+			router.Use(func(ctx *gin.Context) {
+				authMiddleware.MiddlewareFunc()
+			})
+			router.Use(adminCon.CheckIsActive(GetUID))
+	*/
+	bannerCon := banner.New(dbConn)
+	bannerCon.Register(router)
 
 	router.Run(":8080")
 

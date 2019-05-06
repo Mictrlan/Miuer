@@ -20,8 +20,8 @@ type Banner struct {
 	Name      string
 	ImagePath string
 	Event     string
-	StartDate time.Time
-	EndDate   time.Time
+	StartDate string
+	EndDate   string
 }
 
 var (
@@ -38,7 +38,7 @@ var (
 			enddate		DATETIME NOT NULL,
 			PRIMARY KEY(bannerid)
 		)ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;`,
-		`INSERT INTO banner.ads(name,imagepath,event,startdate,enddate)VAULES(?,?,?,?,?)`,
+		`INSERT INTO banner.ads(name,imagepath,event,startdate,enddate)VALUES(?,?,?,?,?)`,
 		`SELECT * FROM banner.ads WHERE UNIX_TIMESTAMP(startdate) <= ? AND  UNIX_TIMESTAMP(enddate) >= ? LOCK IN SHARE MODE `,
 		`SELECT * FROM banner.ads WHERE bannerid = ? LOCK IN SHARE MODE `,
 		`DELETE FROM banner.ads WHERE bannerid = ? LIMIT 1`,
@@ -85,8 +85,8 @@ func LisitValidBannerByUnixDate(db *sql.DB, unixtime int64) ([]*Banner, error) {
 		name      string
 		imagepath string
 		eventpath string
-		sdate     time.Time
-		edate     time.Time
+		sdate     string
+		edate     string
 	)
 
 	rows, err := db.Query(bannerSqlString[mysqlBannerLisitDate], unixtime)
@@ -132,7 +132,7 @@ func InfoById(db *sql.DB, id int) (*Banner, error) {
 	return &ban, nil
 }
 
-func deleteById(db *sql.DB, id int) error {
+func DeleteById(db *sql.DB, id int) error {
 	_, err := db.Exec(bannerSqlString[mysqlBannerDeleteById], id)
 	return err
 }

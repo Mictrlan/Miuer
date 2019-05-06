@@ -21,10 +21,6 @@ func New(db *sql.DB) *controller {
 	}
 }
 
-func (c *controller) SQLStore() *sql.DB {
-	return c.db
-}
-
 var (
 	errPwdRepeat   = errors.New("the new password can't be the same as the old password")
 	errPwdDisagree = errors.New("the new password and confirming password disagree")
@@ -68,7 +64,7 @@ func (c *controller) create(ctx *gin.Context) {
 		return
 	}
 
-	err = mysql.Create(c.SQLStore(), &admin.Name, &admin.Pwd, &admin.Mobile, &admin.Email)
+	err = mysql.Create(c.db, &admin.Name, &admin.Pwd, &admin.Mobile, &admin.Email)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -93,7 +89,7 @@ func (c *controller) Login(ctx *gin.Context) (uint32, error) {
 		return 0, err
 	}
 
-	Id, err := mysql.Login(c.SQLStore(), &admin.Name, &admin.Pwd)
+	Id, err := mysql.Login(c.db, &admin.Name, &admin.Pwd)
 	if err != nil {
 		return 0, err
 	}
@@ -118,7 +114,7 @@ func (c *controller) modifyEmail(ctx *gin.Context) {
 		return
 	}
 
-	err = mysql.ModifyEmail(c.SQLStore(), &admin.Id, &admin.Email)
+	err = mysql.ModifyEmail(c.db, &admin.Id, &admin.Email)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -144,7 +140,7 @@ func (c *controller) modifyMobile(ctx *gin.Context) {
 		return
 	}
 
-	err = mysql.ModifyMobile(c.SQLStore(), &admin.Id, &admin.Mobile)
+	err = mysql.ModifyMobile(c.db, &admin.Id, &admin.Mobile)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -184,7 +180,7 @@ func (c *controller) modifyPwd(ctx *gin.Context) {
 		return
 	}
 
-	err = mysql.ModifyPwd(c.SQLStore(), &admin.Id, &admin.Pwd, &admin.NewPwd)
+	err = mysql.ModifyPwd(c.db, &admin.Id, &admin.Pwd, &admin.NewPwd)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -209,7 +205,7 @@ func (c *controller) modifyActive(ctx *gin.Context) {
 		return
 	}
 
-	err = mysql.ModifyActive(c.SQLStore(), &admin.Id, admin.Active)
+	err = mysql.ModifyActive(c.db, &admin.Id, admin.Active)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -234,7 +230,7 @@ func (c *controller) isactive(ctx *gin.Context) {
 		return
 	}
 
-	_, err = mysql.IsActive(c.SQLStore(), admin.Id)
+	_, err = mysql.IsActive(c.db, admin.Id)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
