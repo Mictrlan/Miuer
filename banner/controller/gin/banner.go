@@ -41,16 +41,6 @@ func (bc *BannerController) Register(r gin.IRouter) error {
 	return nil
 }
 
-func (bc *BannerController) CreateDB() error {
-	err := mysql.CreateDB(bc.db)
-	return err
-}
-
-func (bc *BannerController) CreateTable() error {
-	err := mysql.CreateTable(bc.db)
-	return err
-}
-
 func (bc *BannerController) insert(ctx *gin.Context) {
 	var (
 		banner struct {
