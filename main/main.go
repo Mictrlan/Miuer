@@ -4,6 +4,7 @@ import (
 	admin "Miuer/admin/controller/gin"
 	banner "Miuer/banner/controller/gin"
 	category "Miuer/category/controller/gin"
+	order "Miuer/order/controller/gin"
 	"database/sql"
 
 	ginjwt "github.com/appleboy/gin-jwt"
@@ -48,6 +49,11 @@ func main() {
 
 	categoryCon := category.New(dbConn, "category", "cate")
 	categoryCon.Register(router)
+
+	orderCon := order.New(dbConn, "order", "item")
+
+	orderCon.Register(router)
+
 	router.Run(":8080")
 
 }
