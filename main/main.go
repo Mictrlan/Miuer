@@ -5,6 +5,7 @@ import (
 	banner "Miuer/banner/controller/gin"
 	category "Miuer/category/controller/gin"
 	order "Miuer/order/controller/gin"
+	permission "Miuer/permission/controller/gin"
 	"database/sql"
 
 	ginjwt "github.com/appleboy/gin-jwt"
@@ -51,8 +52,10 @@ func main() {
 	categoryCon.Register(router)
 
 	orderCon := order.New(dbConn, "order", "item")
-
 	orderCon.Register(router)
+
+	permissionCon := permission.New(dbConn)
+	permissionCon.Register(router)
 
 	router.Run(":8080")
 

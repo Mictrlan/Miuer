@@ -165,7 +165,6 @@ func IsActive(db *sql.DB, id uint32) (bool, error) {
 	var (
 		isActive bool
 	)
-
 	err := db.QueryRow(adminSqlString[mysqlUserGetIsActive], id).Scan(&isActive)
 	return isActive, err
 }
