@@ -13,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// OrderController -
 type OrderController struct {
 	db             *sql.DB
 	orderTable     string
@@ -20,6 +21,8 @@ type OrderController struct {
 	closedIntercal int
 }
 
+
+// New - 
 func New(db *sql.DB, orderTable, itemTable string) *OrderController {
 	return &OrderController{
 		db:         db,
@@ -35,7 +38,6 @@ func (odc *OrderController) Register(r gin.IRouter) error {
 		log.Fatal("[InitRouter]: server is nil")
 	}
 
-	//error
 	err := mysql.CreateOrderTable(odc.db, odc.orderTable)
 	if err != nil {
 		return err
@@ -47,10 +49,9 @@ func (odc *OrderController) Register(r gin.IRouter) error {
 	}
 
 	r.POST("/api/v1/order/create", odc.insert)
-
 	r.POST("/api/v1/order/info", odc.orderInfoByOrderID)
 	r.POST("/api/v1/order/user", odc.lisitOrderByUserIDAndStatus)
-	r.POST("/api/v1/order/id", odc.orderIdByOrderCode)
+	r.POST("/api/v1/order/id", odc.orderIDByOrderCode)
 
 	return nil
 }
@@ -66,6 +67,7 @@ func (odc *OrderController) insert(ctx *gin.Context) {
 
 			Items []mysql.Item `json:"items"`
 		}
+		
 		rep struct {
 			ordercode string
 			orderid   uint32
@@ -113,7 +115,7 @@ func (odc *OrderController) insert(ctx *gin.Context) {
 	})
 }
 
-func (odc *OrderController) orderIdByOrderCode(ctx *gin.Context) {
+func (odc *OrderController) orderIDByOrderCode(ctx *gin.Context) {
 	var req struct {
 		Ordercode string `json:"ordercode"`
 	}
@@ -125,7 +127,7 @@ func (odc *OrderController) orderIdByOrderCode(ctx *gin.Context) {
 		return
 	}
 
-	id, err := mysql.OrderIdByOrderCode(odc.db, odc.orderTable, req.Ordercode)
+	id, err := mysql.OrderIDByOrderCode(odc.db, odc.orderTable, req.Ordercode)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -140,7 +142,7 @@ func (odc *OrderController) orderIdByOrderCode(ctx *gin.Context) {
 
 func (odc *OrderController) orderInfoByOrderID(ctx *gin.Context) {
 	var req struct {
-		OrderId uint32 `json:"orderid"`
+		OrderID uint32 `json:"orderid"`
 	}
 
 	err := ctx.ShouldBind(&req)
@@ -150,7 +152,7 @@ func (odc *OrderController) orderInfoByOrderID(ctx *gin.Context) {
 		return
 	}
 
-	rep, err := mysql.OrderInfoByorderKey(odc.db, odc.orderTable, odc.itemTable, req.OrderId)
+	rep, err := mysql.OrderInfoByorderKey(odc.db, odc.orderTable, odc.itemTable, req.OrderID)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -177,7 +179,7 @@ func (odc *OrderController) lisitOrderByUserIDAndStatus(ctx *gin.Context) {
 		return
 	}
 
-	orders, err := mysql.ListOrderByUserId(odc.db, odc.orderTable, odc.itemTable, req.Userid, req.Status)
+	orders, err := mysql.ListOrderByUserID(odc.db, odc.orderTable, odc.itemTable, req.Userid, req.Status)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})

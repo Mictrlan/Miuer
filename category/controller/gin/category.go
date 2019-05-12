@@ -10,12 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CateController - 
 type CateController struct {
 	db        *sql.DB
 	dBName    string
 	tableName string
 }
 
+// New - 
 func New(db *sql.DB, dB string, table string) *CateController {
 	return &CateController{
 		db:        db,
@@ -24,6 +26,7 @@ func New(db *sql.DB, dB string, table string) *CateController {
 	}
 }
 
+// Register - 
 func (cc *CateController) Register(r gin.IRouter) error {
 	if r == nil {
 		log.Fatal("[InitRouter]: server is nil")
@@ -44,7 +47,7 @@ func (cc *CateController) Register(r gin.IRouter) error {
 	r.POST("/api/v1/category/create", cc.insert)
 	r.POST("/api/v1/category/modify/status", cc.changeCategoryStatus)
 	r.POST("/api/v1/category/modify/name", cc.changeCategoryName)
-	r.POST("/api/v1/category/children", cc.lisitChirldrenByParentId)
+	r.POST("/api/v1/category/children", cc.lisitChirldrenByParentID)
 
 	return nil
 }
@@ -60,7 +63,7 @@ func (cc *CateController) createTable() error {
 func (cc *CateController) insert(ctx *gin.Context) {
 	var (
 		category struct {
-			ParentId uint   `json:"parentId"`
+			ParentID uint   `json:"parentId"`
 			Name     string `json:"name"`
 		}
 	)
@@ -72,7 +75,7 @@ func (cc *CateController) insert(ctx *gin.Context) {
 		return
 	}
 
-	id, err := mysql.InsertCategory(cc.db, cc.dBName, cc.tableName, category.ParentId, category.Name)
+	id, err := mysql.InsertCategory(cc.db, cc.dBName, cc.tableName, category.ParentID, category.Name)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -89,7 +92,7 @@ func (cc *CateController) insert(ctx *gin.Context) {
 func (cc *CateController) changeCategoryStatus(ctx *gin.Context) {
 	var (
 		category struct {
-			CategoryId uint `json:"categoryId"`
+			CategoryID uint `json:"categoryId"`
 			Status     int8 `json:"status"`
 		}
 	)
@@ -101,7 +104,7 @@ func (cc *CateController) changeCategoryStatus(ctx *gin.Context) {
 		return
 	}
 
-	err = mysql.ChangeCategoryStatus(cc.db, cc.dBName, cc.tableName, category.Status, category.CategoryId)
+	err = mysql.ChangeCategoryStatus(cc.db, cc.dBName, cc.tableName, category.Status, category.CategoryID)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -114,7 +117,7 @@ func (cc *CateController) changeCategoryStatus(ctx *gin.Context) {
 func (cc *CateController) changeCategoryName(ctx *gin.Context) {
 	var (
 		category struct {
-			CategoryId uint   `json:"categoryId"`
+			CategoryID uint   `json:"categoryId"`
 			Name       string `json:"name"`
 		}
 	)
@@ -126,7 +129,7 @@ func (cc *CateController) changeCategoryName(ctx *gin.Context) {
 		return
 	}
 
-	err = mysql.ChangeCategoryName(cc.db, cc.dBName, cc.tableName, category.Name, category.CategoryId)
+	err = mysql.ChangeCategoryName(cc.db, cc.dBName, cc.tableName, category.Name, category.CategoryID)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -136,10 +139,10 @@ func (cc *CateController) changeCategoryName(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 }
 
-func (cc *CateController) lisitChirldrenByParentId(ctx *gin.Context) {
+func (cc *CateController) lisitChirldrenByParentID(ctx *gin.Context) {
 	var (
 		category struct {
-			ParentId uint `json:"parentId"`
+			ParentID uint `json:"parentId"`
 		}
 	)
 
@@ -150,7 +153,7 @@ func (cc *CateController) lisitChirldrenByParentId(ctx *gin.Context) {
 		return
 	}
 
-	categorys, err := mysql.LisitChirldrenByParentId(cc.db, cc.dBName, cc.tableName, category.ParentId)
+	categorys, err := mysql.LisitChirldrenByParentID(cc.db, cc.dBName, cc.tableName, category.ParentID)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})

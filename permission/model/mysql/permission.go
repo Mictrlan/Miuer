@@ -14,20 +14,21 @@ const (
 	mysqlPermissonGetAll
 )
 
+// Permission -
 type (
-	permission struct {
-		Url       string
+	Permission struct {
+		URL       string
 		RoleID    uint32
 		CreatedAt string
 	}
 )
 
 var (
-	permissionSqlString = []string{
+	permissionSQLString = []string{
 		`CREATE TABLE IF NOT EXISTS admin.permission (
-			url			VARCHAR(512) NOT NULL DEFAULT ' ',
-			role_id		MEDIUMINT UNSIGNED NOT NULL,
-			created_at 	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			url				VARCHAR(512) NOT NULL DEFAULT ' ',
+			role_id			MEDIUMINT UNSIGNED NOT NULL,
+			created_at 		DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (url,role_id)
 		) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;`,
 		`INSERT INTO admin.permission(url,role_id) VALUES (?,?)`,
@@ -39,11 +40,11 @@ var (
 
 // CreatePermissionTable create permission table.
 func CreatePermissionTable(db *sql.DB) error {
-	_, err := db.Exec(permissionSqlString[mysqlPermissionCreateTable])
+	_, err := db.Exec(permissionSQLString[mysqlPermissionCreateTable])
 	return err
 }
 
-// AddPermission create an associated record of the specified URL and role.
+// AddURLPermission create an associated record of the specified URL and role.
 // 通过 roleid 建立与 url 的联系
 func AddURLPermission(db *sql.DB, rid uint32, url string) error {
 	role, err := GetRoleByID(db, rid)
@@ -55,11 +56,11 @@ func AddURLPermission(db *sql.DB, rid uint32, url string) error {
 		return errRoleInactive
 	}
 
-	_, err = db.Exec(permissionSqlString[mysqlPermissionInstert], url, rid)
-	return nil
+	_, err = db.Exec(permissionSQLString[mysqlPermissionInstert], url, rid)
+	return err
 }
 
-// RemovePermission remove the associated records of the specified URL and role.
+// RemoveURLPermission remove the associated records of the specified URL and role.
 func RemoveURLPermission(db *sql.DB, rid uint32, url string) error {
 	role, err := GetRoleByID(db, rid)
 	if err != nil {
@@ -70,7 +71,7 @@ func RemoveURLPermission(db *sql.DB, rid uint32, url string) error {
 		return errRoleInactive
 	}
 
-	_, err = db.Exec(permissionSqlString[mysqlPermissionDelete], rid, url)
+	_, err = db.Exec(permissionSQLString[mysqlPermissionDelete], rid, url)
 	return err
 }
 
@@ -81,10 +82,11 @@ func URLPermissions(db *sql.DB, url string) (map[uint32]bool, error) {
 		result = make(map[uint32]bool)
 	)
 
-	rows, err := db.Query(permissionSqlString[mysqlPermissonGetRole], url)
+	rows, err := db.Query(permissionSQLString[mysqlPermissonGetRole], url)
 	if err != nil {
 		return nil, err
 	}
+	
 	defer rows.Close()
 
 	for rows.Next() {
@@ -93,35 +95,41 @@ func URLPermissions(db *sql.DB, url string) (map[uint32]bool, error) {
 		}
 		result[roleID] = true
 	}
+	
 	return result, nil
 }
 
 // Permissions lists all the roles.
-func Permissions(db *sql.DB) (*[]*permission, error) {
+func Permissions(db *sql.DB) (*[]*Permission, error) {
 	var (
 		roleID    uint32
 		url       string
 		createdAt string
 
-		result []*permission
+		result []*Permission
 	)
 
-	rows, err := db.Query(permissionSqlString[mysqlPermissonGetAll])
+	rows, err := db.Query(permissionSQLString[mysqlPermissonGetAll])
 	if err != nil {
 		return nil, err
 	}
+	
 	defer rows.Close()
 
 	for rows.Next() {
 		if err = rows.Scan(&url, &roleID, &createdAt); err != nil {
 			return nil, err
 		}
-		data := &permission{
-			Url:       url,
+	
+		data := &Permission{
+			URL:       url,
 			RoleID:    roleID,
 			CreatedAt: createdAt,
 		}
+	
 		result = append(result, data)
 	}
+
 	return &result, nil
 }
+

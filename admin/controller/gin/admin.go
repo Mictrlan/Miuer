@@ -11,12 +11,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type controller struct {
+// Controller - 
+type Controller struct {
 	db *sql.DB
 }
 
-func New(db *sql.DB) *controller {
-	return &controller{
+// New - 
+func New(db *sql.DB) *Controller {
+	return &Controller{
 		db: db,
 	}
 }
@@ -26,7 +28,8 @@ var (
 	errPwdDisagree = errors.New("the new password and confirming password disagree")
 )
 
-func (c *controller) RegisterRouter(r gin.IRouter) {
+// RegisterRouter - 
+func (c *Controller) RegisterRouter(r gin.IRouter) {
 	if r == nil {
 		log.Fatal("[RegisterRouter]: server is nil")
 	}
@@ -49,7 +52,7 @@ func (c *controller) RegisterRouter(r gin.IRouter) {
 }
 
 // Create create staff information
-func (c *controller) create(ctx *gin.Context) {
+func (c *Controller) create(ctx *gin.Context) {
 	var admin struct {
 		Name   string `json:"name"  binding:"required,alphanum,min=2,max=30"`
 		Pwd    string `json:"pwd"       binding:"printascii,min=6,max=30"`
@@ -76,7 +79,7 @@ func (c *controller) create(ctx *gin.Context) {
 }
 
 // Login user login
-func (c *controller) Login(ctx *gin.Context) (uint32, error) {
+func (c *Controller) Login(ctx *gin.Context) (uint32, error) {
 	var (
 		admin struct {
 			Name string `json:"name" binding:"required,alphanum,min=2,max=30"`
@@ -89,20 +92,20 @@ func (c *controller) Login(ctx *gin.Context) (uint32, error) {
 		return 0, err
 	}
 
-	Id, err := mysql.Login(c.db, &admin.Name, &admin.Pwd)
+	ID, err := mysql.Login(c.db, &admin.Name, &admin.Pwd)
 	if err != nil {
 		return 0, err
 	}
 
-	return Id, nil
+	return ID, nil
 
 }
 
 // Email modify email
-func (c *controller) modifyEmail(ctx *gin.Context) {
+func (c *Controller) modifyEmail(ctx *gin.Context) {
 	var (
 		admin struct {
-			Id    uint32 `json:"id" binding:"required"`
+			ID    uint32 `json:"id" binding:"required"`
 			Email string `json:"email" binding:"required,email"`
 		}
 	)
@@ -114,7 +117,7 @@ func (c *controller) modifyEmail(ctx *gin.Context) {
 		return
 	}
 
-	err = mysql.ModifyEmail(c.db, &admin.Id, &admin.Email)
+	err = mysql.ModifyEmail(c.db, &admin.ID, &admin.Email)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -125,10 +128,10 @@ func (c *controller) modifyEmail(ctx *gin.Context) {
 
 }
 
-func (c *controller) modifyMobile(ctx *gin.Context) {
+func (c *Controller) modifyMobile(ctx *gin.Context) {
 	var (
 		admin struct {
-			Id     uint32 `json:"id" binding:"required"`
+			ID     uint32 `json:"id" binding:"required"`
 			Mobile string `json:"mobile"    binding:"required,numeric,len=11"`
 		}
 	)
@@ -140,7 +143,7 @@ func (c *controller) modifyMobile(ctx *gin.Context) {
 		return
 	}
 
-	err = mysql.ModifyMobile(c.db, &admin.Id, &admin.Mobile)
+	err = mysql.ModifyMobile(c.db, &admin.ID, &admin.Mobile)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -148,13 +151,12 @@ func (c *controller) modifyMobile(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
-	return
 }
 
-func (c *controller) modifyPwd(ctx *gin.Context) {
+func (c *Controller) modifyPwd(ctx *gin.Context) {
 	var (
 		admin struct {
-			Id      uint32 `json:"id"           binding:"required"`
+			ID      uint32 `json:"id"           binding:"required"`
 			Pwd     string `json:"pwd"          binding:"printascii,min=6,max=30"`
 			NewPwd  string `json:"newpwd"       binding:"printascii,min=6,max=30"`
 			Confirm string `json:"confirm"      binding:"printascii,min=6,max=30"`
@@ -180,7 +182,7 @@ func (c *controller) modifyPwd(ctx *gin.Context) {
 		return
 	}
 
-	err = mysql.ModifyPwd(c.db, &admin.Id, &admin.Pwd, &admin.NewPwd)
+	err = mysql.ModifyPwd(c.db, &admin.ID, &admin.Pwd, &admin.NewPwd)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -190,10 +192,10 @@ func (c *controller) modifyPwd(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 }
 
-func (c *controller) modifyActive(ctx *gin.Context) {
+func (c *Controller) modifyActive(ctx *gin.Context) {
 	var (
 		admin struct {
-			Id     uint32 `json:"id" binding:"required"`
+			ID     uint32 `json:"id" binding:"required"`
 			Active bool   `json:"active"`
 		}
 	)
@@ -205,7 +207,7 @@ func (c *controller) modifyActive(ctx *gin.Context) {
 		return
 	}
 
-	err = mysql.ModifyActive(c.db, &admin.Id, admin.Active)
+	err = mysql.ModifyActive(c.db, &admin.ID, admin.Active)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -213,13 +215,12 @@ func (c *controller) modifyActive(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
-	return
 }
 
-func (c *controller) isactive(ctx *gin.Context) {
+func (c *Controller) isactive(ctx *gin.Context) {
 	var (
 		admin struct {
-			Id uint32 `json:"id" binding:"required"`
+			ID uint32 `json:"id" binding:"required"`
 		}
 	)
 
@@ -230,7 +231,7 @@ func (c *controller) isactive(ctx *gin.Context) {
 		return
 	}
 
-	_, err = mysql.IsActive(c.db, admin.Id)
+	_, err = mysql.IsActive(c.db, admin.ID)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -238,5 +239,4 @@ func (c *controller) isactive(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
-	return
 }

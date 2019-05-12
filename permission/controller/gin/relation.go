@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// AddRelation - 
 func (pc *PermissionController) AddRelation(ctx *gin.Context) {
 	var (
 		relation struct {
@@ -14,7 +15,7 @@ func (pc *PermissionController) AddRelation(ctx *gin.Context) {
 			RoleID  uint32 `json:"role_id" binding:"required"`
 		}
 	)
-
+ 
 	err := ctx.ShouldBind(&relation)
 	if err != nil {
 		ctx.Error(err)
@@ -32,6 +33,7 @@ func (pc *PermissionController) AddRelation(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 }
 
+// RemoveRelation - 
 func (pc *PermissionController) RemoveRelation(ctx *gin.Context) {
 	var (
 		relation struct {

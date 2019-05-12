@@ -9,17 +9,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
-
+// PermissionController - 
 type PermissionController struct {
-	db *sql.DB
+	db *sql.DB 
 }
 
+// New -
 func New(db *sql.DB) *PermissionController {
 	return &PermissionController{
 		db: db,
 	}
 }
-
+// Register - 
 func (pc *PermissionController) Register(r gin.IRouter) {
 	if r == nil {
 		log.Fatal("[RegisterRouter]: server is nil")
@@ -56,6 +57,7 @@ func (pc *PermissionController) Register(r gin.IRouter) {
 
 }
 
+// CreateRole - 
 func (pc *PermissionController) CreateRole(ctx *gin.Context) {
 
 	var (
@@ -83,6 +85,7 @@ func (pc *PermissionController) CreateRole(ctx *gin.Context) {
 
 }
 
+// ModifyRoleByID - 
 func (pc *PermissionController) ModifyRoleByID(ctx *gin.Context) {
 	var (
 		role struct {
@@ -110,6 +113,7 @@ func (pc *PermissionController) ModifyRoleByID(ctx *gin.Context) {
 
 }
 
+// ModifyRoleActiveByID - 
 func (pc *PermissionController) ModifyRoleActiveByID(ctx *gin.Context) {
 	var (
 		role struct {
@@ -135,6 +139,7 @@ func (pc *PermissionController) ModifyRoleActiveByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 }
 
+// GetRoleList - 
 func (pc *PermissionController) GetRoleList(ctx *gin.Context) {
 	result, err := mysql.GetRoleList(pc.db)
 	if err != nil {
@@ -149,6 +154,7 @@ func (pc *PermissionController) GetRoleList(ctx *gin.Context) {
 	})
 }
 
+// GetRoleByID - 
 func (pc *PermissionController) GetRoleByID(ctx *gin.Context) {
 	var (
 		role struct {

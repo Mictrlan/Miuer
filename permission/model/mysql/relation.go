@@ -6,8 +6,9 @@ import (
 	"time"
 )
 
+// RelationData - 
 type (
-	relationData struct {
+	RelationData struct {
 		AdminID uint32
 		RoleID  uint32
 	}
@@ -21,11 +22,11 @@ const (
 )
 
 var (
-	relationSqlString = []string{
+	relationSQLString = []string{
 		`CREATE TABLE IF NOT EXISTS admin.relation (
-			admin_id 	BIGINT UNSIGNED NOT NULL,
-			role_id		INT UNSIGNED NOT NULL,
-			created_at 	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			admin_id 		BIGINT UNSIGNED NOT NULL,
+			role_id			INT UNSIGNED NOT NULL,
+			created_at 		DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (admin_id,role_id)
 		) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;`,
 		`INSERT INTO admin.relation(admin_id,role_id,created_at) VALUES (?,?,?)`,
@@ -34,18 +35,19 @@ var (
 	}
 )
 
-// CreateRoleTable create role table.
+// CreateRelationTable create role table.
 func CreateRelationTable(db *sql.DB) error {
-	_, err := db.Exec(relationSqlString[mysqlRelationCreateTable])
+	_, err := db.Exec(relationSQLString[mysqlRelationCreateTable])
 	return err
 }
 
-// AddRole add a role to admin
+// AddRelation add a role to admin
 func AddRelation(db *sql.DB, aid, rid uint32) error {
 	adminIsActive, err := mysql.IsActive(db, aid)
 	if err != nil {
 		return err
 	}
+
 	if !adminIsActive {
 		return errAdminInactive
 	}
@@ -59,9 +61,8 @@ func AddRelation(db *sql.DB, aid, rid uint32) error {
 		return errRoleInactive
 	}
 
-	result, err := db.Exec(relationSqlString[mysqlRelationInsert], aid, rid, time.Now())
-
-	if err != nil {
+	result, err := db.Exec(relationSQLString[mysqlRelationInsert], aid, rid, time.Now())
+    if err != nil {
 		return err
 	}
 
@@ -72,7 +73,7 @@ func AddRelation(db *sql.DB, aid, rid uint32) error {
 	return nil
 }
 
-// RemoveRole remove role from admin.
+// RemoveRelation remove role from admin.
 func RemoveRelation(db *sql.DB, aid, rid uint32) error {
 	adminIsActive, err := mysql.IsActive(db, aid)
 	if err != nil {
@@ -82,9 +83,9 @@ func RemoveRelation(db *sql.DB, aid, rid uint32) error {
 	if !adminIsActive {
 		return errAdminInactive
 	}
-	_, err = db.Exec(relationSqlString[mysqlRelationDelete], aid, rid)
-
-	return err
+	
+	_, err = db.Exec(relationSQLString[mysqlRelationDelete], aid, rid)
+    return err
 }
 
 // AssociatedRoleMap list all the roles of the specified admin and the return form is map.
@@ -103,11 +104,11 @@ func AssociatedRoleMap(db *sql.DB, aid uint32) (*map[uint32]bool, error) {
 		return nil, errAdminInactive
 	}
 
-	rows, err := db.Query(roleSqlString[mysqlRelationRoleMap], aid)
-
+	rows, err := db.Query(roleSQLString[mysqlRelationRoleMap], aid)
 	if err != nil {
 		return nil, err
 	}
+	
 	defer rows.Close()
 
 	for rows.Next() {
@@ -116,16 +117,18 @@ func AssociatedRoleMap(db *sql.DB, aid uint32) (*map[uint32]bool, error) {
 		}
 		result[roleID] = true
 	}
+
 	return &result, nil
 }
 
 // AssociatedRoleList list all the roles of the specified admin and the return form is slice.
-func AssociatedRoleList(db *sql.DB, aid uint32) ([]*relationData, error) {
+func AssociatedRoleList(db *sql.DB, aid uint32) ([]*RelationData, error) {
 	var (
 		roleID uint32
-		r      *relationData
-		result []*relationData
+		r      *RelationData
+		result []*RelationData
 	)
+	
 	adminIsActive, err := mysql.IsActive(db, aid)
 	if err != nil {
 		return nil, err
@@ -135,23 +138,25 @@ func AssociatedRoleList(db *sql.DB, aid uint32) ([]*relationData, error) {
 		return nil, errAdminInactive
 	}
 
-	rows, err := db.Query(roleSqlString[mysqlRelationRoleMap], aid)
-
+	rows, err := db.Query(roleSQLString[mysqlRelationRoleMap], aid)
 	if err != nil {
 		return nil, err
 	}
+	
 	defer rows.Close()
 
 	for rows.Next() {
 		if err := rows.Scan(&roleID); err != nil {
 			return nil, err
 		}
-		r = &relationData{
+		
+		r = &RelationData{
 			AdminID: aid,
 			RoleID:  roleID,
 		}
+		
 		result = append(result, r)
 	}
-	return result, nil
 
+	return result, nil
 }

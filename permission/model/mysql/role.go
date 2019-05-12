@@ -6,7 +6,8 @@ import (
 )
 
 type (
-	role struct {
+	// Role -
+	Role struct {
 		ID       uint32
 		Name     string
 		Intro    string
@@ -21,7 +22,7 @@ const (
 	mysqlRoleModifyByID
 	mysqlRoleModifyActiveByID
 	mysqlRoleGetList
-	mysqlRoleGetById
+	mysqlRoleGetByID
 )
 
 var (
@@ -29,12 +30,12 @@ var (
 	errAdminInactive = errors.New("the admin is not activated")
 	errRoleInactive  = errors.New("the role is not activated")
 
-	roleSqlString = []string{
+	roleSQLString = []string{
 		`CREATE TABLE IF NOT EXISTS admin.role (
-			id	 INT UNSIGNED NOT NULL AUTO_INCREMENT,
-			name	VARCHAR(512) UNIQUE NOT NULL DEFAULT ' ',
-			intro	 VARCHAR(512) NOT NULL DEFAULT ' ',
-			active	BOOLEAN DEFAULT TRUE,
+			id	 		INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			name		VARCHAR(512) UNIQUE NOT NULL DEFAULT ' ',
+			intro	 	VARCHAR(512) NOT NULL DEFAULT ' ',
+			active		BOOLEAN DEFAULT TRUE,
 			create_at	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (id)
 		) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;`,
@@ -48,13 +49,13 @@ var (
 
 // CreateRoleTable create role table
 func CreateRoleTable(db *sql.DB) error {
-	_, err := db.Exec(roleSqlString[mysqlRoleCreateTable])
+	_, err := db.Exec(roleSQLString[mysqlRoleCreateTable])
 	return err
 }
 
 // InsertRole insert a new line role information
 func InsertRole(db *sql.DB, name, intro string) error {
-	result, err := db.Exec(roleSqlString[mysqlRoleInsert], name, intro, true)
+	result, err := db.Exec(roleSQLString[mysqlRoleInsert], name, intro, true)
 	if err != nil {
 		return err
 	}
@@ -66,20 +67,20 @@ func InsertRole(db *sql.DB, name, intro string) error {
 	return nil
 }
 
-// ModifyRoleById modify role information by id
+// ModifyRoleByID modify role information by id
 func ModifyRoleByID(db *sql.DB, id uint32, name, intro string) error {
-	_, err := db.Exec(roleSqlString[mysqlRoleModifyByID], name, intro, id)
+	_, err := db.Exec(roleSQLString[mysqlRoleModifyByID], name, intro, id)
 	return err
 }
 
-// ModifyRoleActiveById modify role active by id
+// ModifyRoleActiveByID modify role active by id
 func ModifyRoleActiveByID(db *sql.DB, id uint32, active bool) error {
-	_, err := db.Exec(roleSqlString[mysqlRoleModifyActiveByID], active, id)
+	_, err := db.Exec(roleSQLString[mysqlRoleModifyActiveByID], active, id)
 	return err
 }
 
 // GetRoleList get all role information
-func GetRoleList(db *sql.DB) (*[]*role, error) {
+func GetRoleList(db *sql.DB) (*[]*Role, error) {
 	var (
 		id       uint32
 		name     string
@@ -87,13 +88,14 @@ func GetRoleList(db *sql.DB) (*[]*role, error) {
 		active   bool
 		createAt string
 
-		roles []*role
+		roles []*Role
 	)
 
-	rows, err := db.Query(roleSqlString[mysqlRoleGetList])
+	rows, err := db.Query(roleSQLString[mysqlRoleGetList])
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	for rows.Next() {
@@ -101,7 +103,7 @@ func GetRoleList(db *sql.DB) (*[]*role, error) {
 			return nil, err
 		}
 
-		r := &role{
+		r := &Role{
 			ID:       id,
 			Name:     name,
 			Intro:    intro,
@@ -115,10 +117,10 @@ func GetRoleList(db *sql.DB) (*[]*role, error) {
 	return &roles, nil
 }
 
-// GetRoleById get role information by id
-func GetRoleByID(db *sql.DB, id uint32) (*role, error) {
-	var roler role
+// GetRoleByID get role information by id
+func GetRoleByID(db *sql.DB, id uint32) (*Role, error) {
+	var roler Role
 
-	err := db.QueryRow(roleSqlString[mysqlRoleGetById], id).Scan(&roler.ID, &roler.Name, &roler.Intro, &roler.Active, &roler.CreateAt)
+	err := db.QueryRow(roleSQLString[mysqlRoleGetByID], id).Scan(&roler.ID, &roler.Name, &roler.Intro, &roler.Active, &roler.CreateAt)
 	return &roler, err
 }

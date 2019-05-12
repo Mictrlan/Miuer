@@ -3,15 +3,15 @@ package gin
 import (
 	"github.com/Mictrlan/Miuer/permission/model/mysql"
 	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
+// AddURLPermission - 
 func (pc *PermissionController) AddURLPermission(ctx *gin.Context) {
 	var (
 		url struct {
 			URL    string `json:"url"     binding:"required"`
-			RoleId uint32 `json:"role_id" binding:"required"`
+			RoleID uint32 `json:"role_id" binding:"required"`
 		}
 	)
 
@@ -22,7 +22,7 @@ func (pc *PermissionController) AddURLPermission(ctx *gin.Context) {
 		return
 	}
 
-	err = mysql.AddURLPermission(pc.db, url.RoleId, url.URL)
+	err = mysql.AddURLPermission(pc.db, url.RoleID, url.URL)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusBadGateway, gin.H{"status": http.StatusBadGateway})
@@ -32,11 +32,12 @@ func (pc *PermissionController) AddURLPermission(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 }
 
+// RemoveURLPermission - 
 func (pc *PermissionController) RemoveURLPermission(ctx *gin.Context) {
 	var (
 		url struct {
 			URL    string `json:"url"  binding:"required"`
-			RoleId uint32 `json:"role_id"   binding:"required"`
+			RoleID uint32 `json:"role_id"   binding:"required"`
 		}
 	)
 
@@ -47,7 +48,7 @@ func (pc *PermissionController) RemoveURLPermission(ctx *gin.Context) {
 		return
 	}
 
-	err = mysql.RemoveURLPermission(pc.db, url.RoleId, url.URL)
+	err = mysql.RemoveURLPermission(pc.db, url.RoleID, url.URL)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusBadGateway, gin.H{"status": http.StatusBadGateway})
@@ -57,6 +58,7 @@ func (pc *PermissionController) RemoveURLPermission(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 }
 
+// URLPermissions - 
 func (pc *PermissionController) URLPermissions(ctx *gin.Context) {
 	var (
 		url struct {
@@ -84,6 +86,7 @@ func (pc *PermissionController) URLPermissions(ctx *gin.Context) {
 	})
 }
 
+// Permissions -
 func (pc *PermissionController) Permissions(ctx *gin.Context) {
 	result, err := mysql.Permissions(pc.db)
 	if err != nil {

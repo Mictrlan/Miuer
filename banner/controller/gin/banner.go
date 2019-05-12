@@ -10,16 +10,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// BannerController - 
 type BannerController struct {
 	db *sql.DB
 }
 
+
+// New - 
 func New(db *sql.DB) *BannerController {
 	return &BannerController{
 		db: db,
 	}
 }
 
+// Register - 
 func (bc *BannerController) Register(r gin.IRouter) error {
 	if r == nil {
 		log.Fatal("[InitRouter]: server is nil")
@@ -34,8 +38,8 @@ func (bc *BannerController) Register(r gin.IRouter) error {
 	}
 
 	r.POST("/api/v1/banner/create", bc.insert)
-	r.POST("/api/v1/banner/delete", bc.deleteById)
-	r.POST("/api/v1/banner/info/id", bc.infoById)
+	r.POST("/api/v1/banner/delete", bc.deleteByID)
+	r.POST("/api/v1/banner/info/id", bc.infoByID)
 	r.POST("/api/v1/banner/list/date", bc.lisitValidBannerByUnixDate)
 
 	return nil
@@ -99,10 +103,10 @@ func (bc *BannerController) lisitValidBannerByUnixDate(ctx *gin.Context) {
 	})
 }
 
-func (bc *BannerController) infoById(ctx *gin.Context) {
+func (bc *BannerController) infoByID(ctx *gin.Context) {
 	var (
 		banner struct {
-			Id int `json:"id"`
+			ID int `json:"id"`
 		}
 	)
 
@@ -113,7 +117,7 @@ func (bc *BannerController) infoById(ctx *gin.Context) {
 		return
 	}
 
-	ban, err := mysql.InfoById(bc.db, banner.Id)
+	ban, err := mysql.InfoByID(bc.db, banner.ID)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -126,10 +130,10 @@ func (bc *BannerController) infoById(ctx *gin.Context) {
 	})
 }
 
-func (bc *BannerController) deleteById(ctx *gin.Context) {
+func (bc *BannerController) deleteByID(ctx *gin.Context) {
 	var (
 		banner struct {
-			Id int `json:"id"`
+			ID int `json:"id"`
 		}
 	)
 
@@ -140,7 +144,7 @@ func (bc *BannerController) deleteById(ctx *gin.Context) {
 		return
 	}
 
-	err = mysql.DeleteById(bc.db, banner.Id)
+	err = mysql.DeleteByID(bc.db, banner.ID)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -148,5 +152,4 @@ func (bc *BannerController) deleteById(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
-
 }

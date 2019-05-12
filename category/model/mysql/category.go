@@ -6,9 +6,10 @@ import (
 	"fmt"
 )
 
+// Category -
 type Category struct {
-	CategoryId uint
-	ParentId   uint
+	CategoryID uint
+	ParentID   uint
 	Name       string
 	Status     int8
 	CreateTime string
@@ -20,21 +21,21 @@ const (
 	mysqlCategoryInsert
 	mysqlCategoryChangeStatus
 	mysqlCategoryChangeName
-	mysqlCategoryListChirdByParentId
+	mysqlCategoryListChirdByParentID
 )
 
 var (
 	errInvaildInsert         = errors.New("insert comment: insert affected 0 rows")
 	errInvalidChangeCategory = errors.New("change status: affected 0 rows")
 
-	categorySqlString = []string{
+	categorySQLString = []string{
 		`CREATE DATABASE IF NOT EXISTS %s`,
 		`CREATE TABLE IF NOT EXISTS %s.%s (
-			categoryId INT(11) NOT NULL AUTO_INCREMENT COMMENT '类别id',
-				parentId INT(11) DEFAULT NULL  COMMENT '父类别id',
-				name VARCHAR(50) DEFAULT NULL COMMENT '类别名称',
-				status TINYINT(1) DEFAULT '1' COMMENT '状态1-在售，2-废弃',
-				createTime DATETIME DEFAULT current_timestamp COMMENT '创建时间',
+			categoryId 			INT(11) NOT NULL AUTO_INCREMENT COMMENT '类别id',
+				parentId 		INT(11) DEFAULT NULL  COMMENT '父类别id',
+				name 			VARCHAR(50) DEFAULT NULL COMMENT '类别名称',
+				status 			TINYINT(1) DEFAULT '1' COMMENT '状态1-在售，2-废弃',
+				createTime 		DATETIME DEFAULT current_timestamp COMMENT '创建时间',
 				PRIMARY KEY (categoryId),INDEX(parentId)
 				)ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4`,
 		`INSERT INTO %s.%s (parentId,name) VALUES (?,?)`,
@@ -44,21 +45,27 @@ var (
 	}
 )
 
+// CreateDB -
 func CreateDB(db *sql.DB, dBName string) error {
-	sql := fmt.Sprintf(categorySqlString[mysqlCategoryCreateDatabase], dBName)
+	sql := fmt.Sprintf(categorySQLString[mysqlCategoryCreateDatabase], dBName)
+
 	_, err := db.Exec(sql)
 	return err
 }
 
+// CreateTable -
 func CreateTable(db *sql.DB, dBName, tableName string) error {
-	sql := fmt.Sprintf(categorySqlString[mysqlCategoryCreateTable], dBName, tableName)
+	sql := fmt.Sprintf(categorySQLString[mysqlCategoryCreateTable], dBName, tableName)
+
 	_, err := db.Exec(sql)
 	return err
 }
 
-func InsertCategory(db *sql.DB, dBName, tableName string, parentId uint, name string) (uint, error) {
-	sql := fmt.Sprintf(categorySqlString[mysqlCategoryInsert], dBName, tableName)
-	result, err := db.Exec(sql, parentId, name)
+// InsertCategory - 
+func InsertCategory(db *sql.DB, dBName, tableName string, parentID uint, name string) (uint, error) {
+	sql := fmt.Sprintf(categorySQLString[mysqlCategoryInsert], dBName, tableName)
+
+	result, err := db.Exec(sql, parentID, name)
 	if err != nil {
 		return 0, err
 	}
@@ -67,16 +74,18 @@ func InsertCategory(db *sql.DB, dBName, tableName string, parentId uint, name st
 		return 0, errInvaildInsert
 	}
 
-	categoryId, err := result.LastInsertId()
+	categoryID, err := result.LastInsertId()
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(categoryId), nil
+	return uint(categoryID), nil
 }
 
+// ChangeCategoryStatus -
 func ChangeCategoryStatus(db *sql.DB, dBName, tableName string, status int8, category uint) error {
-	sql := fmt.Sprintf(categorySqlString[mysqlCategoryChangeStatus], dBName, tableName)
+	sql := fmt.Sprintf(categorySQLString[mysqlCategoryChangeStatus], dBName, tableName)
+
 	result, err := db.Exec(sql, status, category)
 	if err != nil {
 		return err
@@ -89,8 +98,10 @@ func ChangeCategoryStatus(db *sql.DB, dBName, tableName string, status int8, cat
 	return nil
 }
 
+// ChangeCategoryName - 
 func ChangeCategoryName(db *sql.DB, dBName, tableName string, name string, category uint) error {
-	sql := fmt.Sprintf(categorySqlString[mysqlCategoryChangeName], dBName, tableName)
+	sql := fmt.Sprintf(categorySQLString[mysqlCategoryChangeName], dBName, tableName)
+
 	result, err := db.Exec(sql, name, category)
 	if err != nil {
 		return err
@@ -103,9 +114,10 @@ func ChangeCategoryName(db *sql.DB, dBName, tableName string, name string, categ
 	return nil
 }
 
-func LisitChirldrenByParentId(db *sql.DB, dBName, tableName string, parentId uint) ([]*Category, error) {
+// LisitChirldrenByParentID - 
+func LisitChirldrenByParentID(db *sql.DB, dBName, tableName string, parentID uint) ([]*Category, error) {
 	var (
-		categoryId uint
+		categoryID uint
 		name       string
 		status     int8
 		creatTime  string
@@ -113,8 +125,8 @@ func LisitChirldrenByParentId(db *sql.DB, dBName, tableName string, parentId uin
 		categorys []*Category
 	)
 
-	sql := fmt.Sprintf(categorySqlString[mysqlCategoryListChirdByParentId], dBName, tableName)
-	rows, err := db.Query(sql, parentId)
+	sql := fmt.Sprintf(categorySQLString[mysqlCategoryListChirdByParentID], dBName, tableName)
+	rows, err := db.Query(sql, parentID)
 	if err != nil {
 		return nil, err
 	}
@@ -122,13 +134,13 @@ func LisitChirldrenByParentId(db *sql.DB, dBName, tableName string, parentId uin
 	defer rows.Close()
 
 	for rows.Next() {
-		if err := rows.Scan(&categoryId, &parentId, &name, &status, &creatTime); err != nil {
+		if err := rows.Scan(&categoryID, &parentID, &name, &status, &creatTime); err != nil {
 			return nil, err
 		}
 
 		cgy := &Category{
-			CategoryId: categoryId,
-			ParentId:   parentId,
+			CategoryID: categoryID,
+			ParentID:   parentID,
 			Name:       name,
 			Status:     status,
 			CreateTime: creatTime,
@@ -138,5 +150,4 @@ func LisitChirldrenByParentId(db *sql.DB, dBName, tableName string, parentId uin
 	}
 
 	return categorys, nil
-
 }
