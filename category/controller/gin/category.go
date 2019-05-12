@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	mysql "Miuer/category/model/mysql"
+	mysql "github.com/Mictrlan/Miuer/category/model/mysql"
 
 	"github.com/gin-gonic/gin"
 )

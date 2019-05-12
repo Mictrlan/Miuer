@@ -3,7 +3,7 @@
 package gin
 
 import (
-	mysql "Miuer/order/model/mysql"
+	mysql "github.com/Mictrlan/Miuer/order/model/mysql"
 	"database/sql"
 	"log"
 	"net/http"

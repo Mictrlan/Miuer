@@ -1,11 +1,11 @@
 package main
 
 import (
-	admin "Miuer/admin/controller/gin"
-	banner "Miuer/banner/controller/gin"
-	category "Miuer/category/controller/gin"
-	order "Miuer/order/controller/gin"
-	permission "Miuer/permission/controller/gin"
+	admin "github.com/Mictrlan/Miuer/admin/controller/gin"
+	banner "github.com/Mictrlan/Miuer/banner/controller/gin"
+	category "github.com/Mictrlan/Miuer/category/controller/gin"
+	order "github.com/Mictrlan/Miuer/order/controller/gin"
+	permission "github.com/Mictrlan/Miuer/permission/controller/gin"
 	"database/sql"
 
 	ginjwt "github.com/appleboy/gin-jwt"

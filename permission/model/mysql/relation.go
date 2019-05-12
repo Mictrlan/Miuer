@@ -1,7 +1,7 @@
 package mysql
 
 import (
-	"Miuer/admin/model/mysql"
+	"github.com/Mictrlan/Miuer/admin/model/mysql"
 	"database/sql"
 	"time"
 )

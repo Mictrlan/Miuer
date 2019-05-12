@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	mysql "Miuer/admin/model/mysql"
+	mysql "github.com/Mictrlan/Miuer/admin/model/mysql"
 
 	ginjwt "github.com/appleboy/gin-jwt"
 	gojwt "github.com/dgrijalva/jwt-go"

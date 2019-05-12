@@ -1,7 +1,7 @@
 package gin
 
 import (
-	mysql "Miuer/admin/model/mysql"
+	mysql "github.com/Mictrlan/Miuer/admin/model/mysql"
 	"database/sql"
 	"errors"
 	"log"

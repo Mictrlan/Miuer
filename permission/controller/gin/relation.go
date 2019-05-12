@@ -1,7 +1,7 @@
 package gin
 
 import (
-	"Miuer/permission/model/mysql"
+	"github.com/Mictrlan/Miuer/permission/model/mysql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
