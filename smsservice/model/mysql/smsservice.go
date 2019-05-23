@@ -26,10 +26,10 @@ const (
 var smsSQLString = []string{
 	`CREATE DATABASE IF NOT EXISTS  SMS`,
 	`CREATE TABLE IF NOT EXISTS SMS.msg(
-		mobile 		VARCHAR(32) UNIQUE NOT NULL,
-		date  		INT(11) DEFAULT 0,
-		code 		VARCHAR(32) ,
-		sign 		VARCHAR(32) UNIQUE NOT NULL
+		mobile      VARCHAR(32) UNIQUE NOT NULL,
+		date        INT(11) DEFAULT 0,
+		code        VARCHAR(32) ,
+		sign        VARCHAR(32) UNIQUE NOT NULL
 	)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;`,
 	`INSERT INTO SMS.msg(mobile,date,code,sign) VALUES (?,?,?,?)`,
 	`SELECT mobile FROM SMS.msg WHERE sign = ? LOCK IN SHARE MODE`,

@@ -31,11 +31,11 @@ var (
 	categorySQLString = []string{
 		`CREATE DATABASE IF NOT EXISTS %s`,
 		`CREATE TABLE IF NOT EXISTS %s.%s (
-				categoryId 		INT(11) NOT NULL AUTO_INCREMENT COMMENT '类别id',
-				parentId 		INT(11) DEFAULT NULL  COMMENT '父类别id',
-				name 			VARCHAR(50) DEFAULT NULL COMMENT '类别名称',
-				status 			TINYINT(1) DEFAULT '1' COMMENT '状态1-在售，2-废弃',
-				createTime 		DATETIME DEFAULT current_timestamp COMMENT '创建时间',
+				categoryId      INT(11) NOT NULL AUTO_INCREMENT COMMENT '类别id',
+				parentId        INT(11) DEFAULT NULL  COMMENT '父类别id',
+				name            VARCHAR(50) DEFAULT NULL COMMENT '类别名称',
+				status          TINYINT(1) DEFAULT '1' COMMENT '状态1-在售，2-废弃',
+				createTime      DATETIME DEFAULT current_timestamp COMMENT '创建时间',
 				PRIMARY KEY (categoryId),INDEX(parentId)
 				)ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4`,
 		`INSERT INTO %s.%s (parentId,name) VALUES (?,?)`,

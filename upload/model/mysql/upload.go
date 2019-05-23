@@ -18,10 +18,10 @@ var (
 
 	UploadSQLString = []string{
 		`CREATE TABLE IF NOT EXISTS upload.files (
-			user_id 	INTEGER UNSIGNED NOT NULL,
-			md5 		VARCHAR(512) DEFAULT ' ',
-			path 		VARCHAR(512) DEFAULT ' ',
-			created_at 	DATETIME DEFAULT CURRENT_TIMESTAMP,
+			user_id     INTEGER UNSIGNED NOT NULL,
+			md5         VARCHAR(512) DEFAULT ' ',
+			path        VARCHAR(512) DEFAULT ' ',
+			created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (md5)
 		) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;`,
 		`INSERT INTO upload.files(user_id,md5,path,created_at) VALUES (?,?,?,?)`,

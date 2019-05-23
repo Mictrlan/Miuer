@@ -26,9 +26,9 @@ type (
 var (
 	permissionSQLString = []string{
 		`CREATE TABLE IF NOT EXISTS admin.permission (
-			url				VARCHAR(512) NOT NULL DEFAULT ' ',
-			role_id			MEDIUMINT UNSIGNED NOT NULL,
-			created_at 		DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			url             VARCHAR(512) NOT NULL DEFAULT ' ',
+			role_id         MEDIUMINT UNSIGNED NOT NULL,
+			created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (url,role_id)
 		) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;`,
 		`INSERT INTO admin.permission(url,role_id) VALUES (?,?)`,

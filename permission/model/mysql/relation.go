@@ -27,9 +27,9 @@ const (
 var (
 	relationSQLString = []string{
 		`CREATE TABLE IF NOT EXISTS admin.relation (
-			admin_id 		BIGINT UNSIGNED NOT NULL,
-			role_id			INT UNSIGNED NOT NULL,
-			created_at 		DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			admin_id        BIGINT UNSIGNED NOT NULL,
+			role_id         INT UNSIGNED NOT NULL,
+			created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (admin_id,role_id)
 		) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;`,
 		`INSERT INTO admin.relation(admin_id,role_id,created_at) VALUES (?,?,?)`,

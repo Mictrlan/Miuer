@@ -31,12 +31,12 @@ var (
 	bannerSQLString = []string{
 		`CREATE DATABASE IF NOT EXISTS banner`,
 		`CREATE TABLE IF NOT EXISTS banner.ads(
-			bannerid 		BIGINT  NOT NULL AUTO_INCREMENT,
-			name 			VARCHAR(512) UNIQUE DEFAULT ' ',
-			imagepath  		VARCHAR(512) UNIQUE NOT NULL,
-			event 			VARCHAR(512) DEFAULT ' ',
-			startdate  		DATETIME NOT NULL,
-			enddate			DATETIME NOT NULL,
+			bannerid        BIGINT  NOT NULL AUTO_INCREMENT,
+			name            VARCHAR(512) UNIQUE DEFAULT ' ',
+			imagepath       VARCHAR(512) UNIQUE NOT NULL,
+			event           VARCHAR(512) DEFAULT ' ',
+			startdate       DATETIME NOT NULL,
+			enddate         DATETIME NOT NULL,
 			PRIMARY KEY(bannerid)
 		)ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;`,
 		`INSERT INTO banner.ads(name,imagepath,event,startdate,enddate)VALUES(?,?,?,?,?)`,
