@@ -122,5 +122,6 @@ func GetRoleByID(db *sql.DB, id uint32) (*Role, error) {
 	var roler Role
 
 	err := db.QueryRow(roleSQLString[mysqlRoleGetByID], id).Scan(&roler.ID, &roler.Name, &roler.Intro, &roler.Active, &roler.CreateAt)
+
 	return &roler, err
 }

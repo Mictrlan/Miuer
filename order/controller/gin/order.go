@@ -3,15 +3,19 @@
 package gin
 
 import (
-	mysql "github.com/Mictrlan/Miuer/order/model/mysql"
 	"database/sql"
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
 
+	mysql "github.com/Mictrlan/Miuer/order/model/mysql"
+
 	"github.com/gin-gonic/gin"
 )
+
+var errServerNotExists = errors.New("[RegisterRouter]: server is nil")
 
 // OrderController -
 type OrderController struct {
@@ -21,8 +25,7 @@ type OrderController struct {
 	closedIntercal int
 }
 
-
-// New - 
+// New create new OrderCOntroller
 func New(db *sql.DB, orderTable, itemTable string) *OrderController {
 	return &OrderController{
 		db:         db,
@@ -31,21 +34,20 @@ func New(db *sql.DB, orderTable, itemTable string) *OrderController {
 	}
 }
 
-// Register register router and create tables
-func (odc *OrderController) Register(r gin.IRouter) error {
-
+// Register register router
+func (odc *OrderController) Register(r gin.IRouter) {
 	if r == nil {
-		log.Fatal("[InitRouter]: server is nil")
+		log.Fatal(errServerNotExists)
 	}
 
 	err := mysql.CreateOrderTable(odc.db, odc.orderTable)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 
 	err = mysql.CreateItemTabke(odc.db, odc.itemTable)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 
 	r.POST("/api/v1/order/create", odc.insert)
@@ -53,7 +55,6 @@ func (odc *OrderController) Register(r gin.IRouter) error {
 	r.POST("/api/v1/order/user", odc.lisitOrderByUserIDAndStatus)
 	r.POST("/api/v1/order/id", odc.orderIDByOrderCode)
 
-	return nil
 }
 
 func (odc *OrderController) insert(ctx *gin.Context) {
@@ -67,7 +68,7 @@ func (odc *OrderController) insert(ctx *gin.Context) {
 
 			Items []mysql.Item `json:"items"`
 		}
-		
+
 		rep struct {
 			ordercode string
 			orderid   uint32
@@ -77,7 +78,7 @@ func (odc *OrderController) insert(ctx *gin.Context) {
 	err := ctx.ShouldBind(&req)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest})
 		return
 	}
 
@@ -152,7 +153,7 @@ func (odc *OrderController) orderInfoByOrderID(ctx *gin.Context) {
 		return
 	}
 
-	rep, err := mysql.OrderInfoByorderKey(odc.db, odc.orderTable, odc.itemTable, req.OrderID)
+	rep, err := mysql.OrderInfoByorderID(odc.db, odc.orderTable, odc.itemTable, req.OrderID)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusPreconditionFailed, gin.H{"status": http.StatusPreconditionFailed})
@@ -190,5 +191,4 @@ func (odc *OrderController) lisitOrderByUserIDAndStatus(ctx *gin.Context) {
 		"status": http.StatusOK,
 		"orders": orders,
 	})
-
 }

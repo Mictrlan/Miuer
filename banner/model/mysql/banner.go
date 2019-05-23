@@ -10,12 +10,12 @@ const (
 	mysqlBannerCreateDatabase = iota
 	mysqlBannerCreateTable
 	mysqlBannerInsert
-	mysqlBannerLisitDate
+	mysqlBannerListDate
 	mysqlBannerInfoByID
 	mysqlBannerDeleteByID
 )
 
-// Banner - 
+// Banner -
 type Banner struct {
 	BannerID  int
 	Name      string
@@ -33,7 +33,7 @@ var (
 		`CREATE TABLE IF NOT EXISTS banner.ads(
 			bannerid 		BIGINT  NOT NULL AUTO_INCREMENT,
 			name 			VARCHAR(512) UNIQUE DEFAULT ' ',
-			imagepath  		VARCHAR(512) UNIQUE DEFAULT ' ',
+			imagepath  		VARCHAR(512) UNIQUE NOT NULL,
 			event 			VARCHAR(512) DEFAULT ' ',
 			startdate  		DATETIME NOT NULL,
 			enddate			DATETIME NOT NULL,
@@ -58,8 +58,8 @@ func CreateTable(db *sql.DB) error {
 	return err
 }
 
-// InsertBanner return bannerId
-func InsertBanner(db *sql.DB, name, imagepath, event *string, startdate, enddate *time.Time) (int, error) {
+// InsertBanner add banner information and return bannerId
+func InsertBanner(db *sql.DB, name, imagepath, event *string, startdate, enddate *time.Time) (uint32, error) {
 	result, err := db.Exec(bannerSQLString[mysqlBannerInsert], name, imagepath, event, startdate, enddate)
 	if err != nil {
 		return 0, err
@@ -74,10 +74,10 @@ func InsertBanner(db *sql.DB, name, imagepath, event *string, startdate, enddate
 		return 0, err
 	}
 
-	return int(bannerID), nil
+	return uint32(bannerID), nil
 }
 
-// LisitValidBannerByUnixDate - 
+// LisitValidBannerByUnixDate query banner info  Within the specified time
 func LisitValidBannerByUnixDate(db *sql.DB, unixtime int64) ([]*Banner, error) {
 	var (
 		bans []*Banner
@@ -90,7 +90,7 @@ func LisitValidBannerByUnixDate(db *sql.DB, unixtime int64) ([]*Banner, error) {
 		edate     string
 	)
 
-	rows, err := db.Query(bannerSQLString[mysqlBannerLisitDate], unixtime, unixtime)
+	rows, err := db.Query(bannerSQLString[mysqlBannerListDate], unixtime, unixtime)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func LisitValidBannerByUnixDate(db *sql.DB, unixtime int64) ([]*Banner, error) {
 	return bans, nil
 }
 
-// InfoByID - 
+// InfoByID query banner by bannerid
 func InfoByID(db *sql.DB, id int) (*Banner, error) {
 	var ban Banner
 
@@ -127,16 +127,17 @@ func InfoByID(db *sql.DB, id int) (*Banner, error) {
 	}
 
 	defer rows.Close()
-	
+
 	for rows.Next() {
 		if err := rows.Scan(&ban.BannerID, &ban.Name, &ban.ImagePath, &ban.Event, &ban.StartDate, &ban.EndDate); err != nil {
 			return nil, err
 		}
 	}
+
 	return &ban, nil
 }
 
-// DeleteByID -
+// DeleteByID delete banner by id
 func DeleteByID(db *sql.DB, id int) error {
 	_, err := db.Exec(bannerSQLString[mysqlBannerDeleteByID], id)
 	return err

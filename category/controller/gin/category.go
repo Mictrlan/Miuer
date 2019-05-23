@@ -2,22 +2,25 @@ package gin
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 	"net/http"
 
-	mysql "github.com/Mictrlan/Miuer/category/model/mysql"
+	"github.com/Mictrlan/Miuer/category/model/mysql"
 
 	"github.com/gin-gonic/gin"
 )
 
-// CateController - 
+var errServerNotExists = errors.New("[RegisterRouter]: server is nil")
+
+// CateController -
 type CateController struct {
 	db        *sql.DB
 	dBName    string
 	tableName string
 }
 
-// New - 
+// New create new CateController
 func New(db *sql.DB, dB string, table string) *CateController {
 	return &CateController{
 		db:        db,
@@ -26,22 +29,20 @@ func New(db *sql.DB, dB string, table string) *CateController {
 	}
 }
 
-// Register - 
-func (cc *CateController) Register(r gin.IRouter) error {
+// Register register category router
+func (cc *CateController) Register(r gin.IRouter) {
 	if r == nil {
-		log.Fatal("[InitRouter]: server is nil")
+		log.Fatal(errServerNotExists)
 	}
-
-	// 考虑只需要注册时需要自定义 database 和 table  放在 main 还是 controller
 
 	err := mysql.CreateDB(cc.db, cc.dBName)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 
 	err = mysql.CreateTable(cc.db, cc.dBName, cc.tableName)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 
 	r.POST("/api/v1/category/create", cc.insert)
@@ -49,7 +50,6 @@ func (cc *CateController) Register(r gin.IRouter) error {
 	r.POST("/api/v1/category/modify/name", cc.changeCategoryName)
 	r.POST("/api/v1/category/children", cc.lisitChirldrenByParentID)
 
-	return nil
 }
 
 func (cc *CateController) createDB() error {
@@ -86,7 +86,6 @@ func (cc *CateController) insert(ctx *gin.Context) {
 		"status": http.StatusOK,
 		"Id":     id,
 	})
-
 }
 
 func (cc *CateController) changeCategoryStatus(ctx *gin.Context) {
@@ -164,5 +163,4 @@ func (cc *CateController) lisitChirldrenByParentID(ctx *gin.Context) {
 		"status":    http.StatusOK,
 		"categorys": categorys,
 	})
-
 }

@@ -1,13 +1,13 @@
 package gin
 
 import (
-	"github.com/Mictrlan/Miuer/permission/model/mysql"
 	"net/http"
+
+	"github.com/Mictrlan/Miuer/permission/model/mysql"
 	"github.com/gin-gonic/gin"
 )
 
-// AddURLPermission - 
-func (pc *PermissionController) AddURLPermission(ctx *gin.Context) {
+func (pc *PermissionController) addURLPermission(ctx *gin.Context) {
 	var (
 		url struct {
 			URL    string `json:"url"     binding:"required"`
@@ -32,8 +32,7 @@ func (pc *PermissionController) AddURLPermission(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 }
 
-// RemoveURLPermission - 
-func (pc *PermissionController) RemoveURLPermission(ctx *gin.Context) {
+func (pc *PermissionController) removeURLPermission(ctx *gin.Context) {
 	var (
 		url struct {
 			URL    string `json:"url"  binding:"required"`
@@ -58,7 +57,7 @@ func (pc *PermissionController) RemoveURLPermission(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 }
 
-// URLPermissions - 
+// URLPermissions -
 func (pc *PermissionController) URLPermissions(ctx *gin.Context) {
 	var (
 		url struct {
@@ -86,8 +85,7 @@ func (pc *PermissionController) URLPermissions(ctx *gin.Context) {
 	})
 }
 
-// Permissions -
-func (pc *PermissionController) Permissions(ctx *gin.Context) {
+func (pc *PermissionController) permissions(ctx *gin.Context) {
 	result, err := mysql.Permissions(pc.db)
 	if err != nil {
 		ctx.Error(err)

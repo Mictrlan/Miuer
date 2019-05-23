@@ -25,13 +25,12 @@ var (
 	errLoginFailed  = errors.New("invalid name or password")
 
 	adminSQLString = []string{
-		// 考虑数据库不存在时不能调用的情况（后续修改）
 		`CREATE DATABASE IF NOT EXISTS admin`,
 		`CREATE TABLE IF NOT EXISTS admin.user(
 			id				BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-			name			VARCHAR(512) UNIQUE NOT NULL DEFAULT ' ',
-			pwd				VARCHAR(512) NOT NULL DEFAULT ' ',
-			mobile			VARCHAR(32) UNIQUE NOT NULL,
+			name			VARCHAR(512) UNIQUE NOT NULL ,
+			pwd				VARCHAR(512) NOT NULL ,
+			mobile			VARCHAR(32) UNIQUE DEFAULT NULL ,
 			email			VARCHAR(128) UNIQUE DEFAULT NULL,  
 			active			BOOLEAN	DEFAULT TRUE,
 			created_at		DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -48,21 +47,20 @@ var (
 	}
 )
 
-// CreateDataBase - 
+// CreateDataBase create admin database
 func CreateDataBase(db *sql.DB) error {
 	_, err := db.Exec(adminSQLString[mysqlAdminCreateDatabase])
 	return err
 }
 
-// CreateTable - 
+// CreateTable create user table
 func CreateTable(db *sql.DB) error {
 	_, err := db.Exec(adminSQLString[mysqlUserCreateTable])
 	return err
 }
 
-// Create - 
-func Create(db *sql.DB, name, pwd, mobile, email *string) error {
-
+// Create add new user information
+func Create(db *sql.DB, name, pwd, mobile, email string) error {
 	hash, err := SaltHashGenerate(pwd)
 	if err != nil {
 		return err
@@ -80,8 +78,8 @@ func Create(db *sql.DB, name, pwd, mobile, email *string) error {
 	return nil
 }
 
-// Login -
-func Login(db *sql.DB, name, pwd *string) (uint32, error) {
+// Login return userid after successful login
+func Login(db *sql.DB, name, pwd string) (uint32, error) {
 	var (
 		id       uint32
 		password string
@@ -99,8 +97,8 @@ func Login(db *sql.DB, name, pwd *string) (uint32, error) {
 	return id, nil
 }
 
-// ModifyEmail - 
-func ModifyEmail(db *sql.DB, id *uint32, email *string) error {
+// ModifyEmail modify user email by user id
+func ModifyEmail(db *sql.DB, id uint32, email string) error {
 	result, err := db.Exec(adminSQLString[mysqlUserModifyEmail], email, id)
 	if err != nil {
 		return err
@@ -113,24 +111,22 @@ func ModifyEmail(db *sql.DB, id *uint32, email *string) error {
 	return nil
 }
 
-// ModifyMobile - 
+// ModifyMobile modify user mobile by user id
 func ModifyMobile(db *sql.DB, id *uint32, mobile *string) error {
 	result, err := db.Exec(adminSQLString[mysqlUserModifyMobile], mobile, id)
 	if err != nil {
-
 		return err
 	}
 
 	if rows, _ := result.RowsAffected(); rows == 0 {
-
 		return errInvalidMysql
 	}
 
 	return nil
 }
 
-// ModifyPwd -
-func ModifyPwd(db *sql.DB, id *uint32, pwd, pwdNew *string) error {
+// ModifyPwd modify user password by user id
+func ModifyPwd(db *sql.DB, id uint32, pwd, pwdNew string) error {
 	var (
 		password string
 	)
@@ -153,7 +149,7 @@ func ModifyPwd(db *sql.DB, id *uint32, pwd, pwdNew *string) error {
 	return err
 }
 
-// ModifyActive - 
+// ModifyActive modify user active by id
 func ModifyActive(db *sql.DB, id *uint32, active bool) error {
 	result, err := db.Exec(adminSQLString[mysqlUserModifyActive], active, id)
 	if err != nil {
@@ -167,7 +163,7 @@ func ModifyActive(db *sql.DB, id *uint32, active bool) error {
 	return nil
 }
 
-// IsActive - 
+// IsActive query user active information
 func IsActive(db *sql.DB, id uint32) (bool, error) {
 	var (
 		isActive bool
@@ -177,9 +173,9 @@ func IsActive(db *sql.DB, id uint32) (bool, error) {
 	return isActive, err
 }
 
-// SaltHashGenerate - 
-func SaltHashGenerate(password *string) (string, error) {
-	hex := []byte(*password)
+// SaltHashGenerate encrypt user passwords
+func SaltHashGenerate(password string) (string, error) {
+	hex := []byte(password)
 
 	hashedPassword, err := bcrypt.GenerateFromPassword(hex, 10)
 	if err != nil {
@@ -189,10 +185,10 @@ func SaltHashGenerate(password *string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-// SaltHashCompare -
-func SaltHashCompare(digest []byte, password *string) bool {
-	hex := []byte(*password)
-	
+// SaltHashCompare compare passwords for consistency
+func SaltHashCompare(digest []byte, password string) bool {
+	hex := []byte(password)
+
 	if err := bcrypt.CompareHashAndPassword(digest, hex); err == nil {
 		return true
 	}

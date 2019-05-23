@@ -1,40 +1,43 @@
 package gin
 
 import (
-	mysql "github.com/Mictrlan/Miuer/banner/model/mysql"
 	"database/sql"
+	"errors"
 	"log"
 	"net/http"
 	"time"
 
+	"github.com/Mictrlan/Miuer/banner/model/mysql"
+
 	"github.com/gin-gonic/gin"
 )
 
-// BannerController - 
+var errServerNotExists = errors.New("[RegisterRouter]: server is nil")
+
+// BannerController -
 type BannerController struct {
 	db *sql.DB
 }
 
-
-// New - 
+// New create new BannerController
 func New(db *sql.DB) *BannerController {
 	return &BannerController{
 		db: db,
 	}
 }
 
-// Register - 
-func (bc *BannerController) Register(r gin.IRouter) error {
+// Register register banner router
+func (bc *BannerController) Register(r gin.IRouter) {
 	if r == nil {
-		log.Fatal("[InitRouter]: server is nil")
+		log.Fatal(errServerNotExists)
 	}
 
 	if err := mysql.CreateDB(bc.db); err != nil {
-		return err
+		log.Fatal(err)
 	}
 
 	if err := mysql.CreateTable(bc.db); err != nil {
-		return err
+		log.Fatal(err)
 	}
 
 	r.POST("/api/v1/banner/create", bc.insert)
@@ -42,7 +45,6 @@ func (bc *BannerController) Register(r gin.IRouter) error {
 	r.POST("/api/v1/banner/info/id", bc.infoByID)
 	r.POST("/api/v1/banner/list/date", bc.lisitValidBannerByUnixDate)
 
-	return nil
 }
 
 func (bc *BannerController) insert(ctx *gin.Context) {

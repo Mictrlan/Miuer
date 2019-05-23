@@ -9,9 +9,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
-// PermissionController - 
+
+// PermissionController -
 type PermissionController struct {
-	db *sql.DB 
+	db *sql.DB
 }
 
 // New -
@@ -20,7 +21,8 @@ func New(db *sql.DB) *PermissionController {
 		db: db,
 	}
 }
-// Register - 
+
+// Register -
 func (pc *PermissionController) Register(r gin.IRouter) {
 	if r == nil {
 		log.Fatal("[RegisterRouter]: server is nil")
@@ -41,24 +43,23 @@ func (pc *PermissionController) Register(r gin.IRouter) {
 		log.Fatal(err)
 	}
 
-	r.POST("/api/v1/permission/addrole", pc.CreateRole)
-	r.POST("/api/v1/permission/modifyrole", pc.ModifyRoleByID)
-	r.POST("/api/v1/permission/activerole", pc.ModifyRoleActiveByID)
-	r.POST("/api/v1/permission/getrole", pc.GetRoleList)
-	r.POST("/api/v1/permission/getidrole", pc.GetRoleByID)
+	r.POST("/api/v1/permission/addrole", pc.createRole)
+	r.POST("/api/v1/permission/modifyrole", pc.modifyRoleByID)
+	r.POST("/api/v1/permission/activerole", pc.modifyRoleActiveByID)
+	r.POST("/api/v1/permission/getrole", pc.getRoleList)
+	r.POST("/api/v1/permission/getidrole", pc.getRoleByID)
 
-	r.POST("/api/v1/permission/addurl", pc.AddURLPermission)
-	r.POST("/api/v1/permission/removeurl", pc.RemoveURLPermission)
+	r.POST("/api/v1/permission/addurl", pc.addURLPermission)
+	r.POST("/api/v1/permission/removeurl", pc.removeURLPermission)
 	r.POST("/api/v1/permission/urlgetrole", pc.URLPermissions)
-	r.POST("/api/v1/permission/getpermission", pc.Permissions)
+	r.POST("/api/v1/permission/getpermission", pc.permissions)
 
-	r.POST("/api/v1/permission/addrelation", pc.AddRelation)
-	r.POST("/api/v1/permission/removerelation", pc.RemoveRelation)
+	r.POST("/api/v1/permission/addrelation", pc.addRelation)
+	r.POST("/api/v1/permission/removerelation", pc.removeRelation)
 
 }
 
-// CreateRole - 
-func (pc *PermissionController) CreateRole(ctx *gin.Context) {
+func (pc *PermissionController) createRole(ctx *gin.Context) {
 
 	var (
 		role struct {
@@ -85,8 +86,7 @@ func (pc *PermissionController) CreateRole(ctx *gin.Context) {
 
 }
 
-// ModifyRoleByID - 
-func (pc *PermissionController) ModifyRoleByID(ctx *gin.Context) {
+func (pc *PermissionController) modifyRoleByID(ctx *gin.Context) {
 	var (
 		role struct {
 			ID    uint32 `json:"id"    binding:"required"`
@@ -110,11 +110,9 @@ func (pc *PermissionController) ModifyRoleByID(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
-
 }
 
-// ModifyRoleActiveByID - 
-func (pc *PermissionController) ModifyRoleActiveByID(ctx *gin.Context) {
+func (pc *PermissionController) modifyRoleActiveByID(ctx *gin.Context) {
 	var (
 		role struct {
 			ID     uint32 `json:"id"    binding:"required"`
@@ -139,8 +137,7 @@ func (pc *PermissionController) ModifyRoleActiveByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 }
 
-// GetRoleList - 
-func (pc *PermissionController) GetRoleList(ctx *gin.Context) {
+func (pc *PermissionController) getRoleList(ctx *gin.Context) {
 	result, err := mysql.GetRoleList(pc.db)
 	if err != nil {
 		ctx.Error(err)
@@ -154,8 +151,7 @@ func (pc *PermissionController) GetRoleList(ctx *gin.Context) {
 	})
 }
 
-// GetRoleByID - 
-func (pc *PermissionController) GetRoleByID(ctx *gin.Context) {
+func (pc *PermissionController) getRoleByID(ctx *gin.Context) {
 	var (
 		role struct {
 			ID uint32 `json:"id" binding:"required"`

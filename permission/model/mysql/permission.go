@@ -32,7 +32,7 @@ var (
 			PRIMARY KEY (url,role_id)
 		) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;`,
 		`INSERT INTO admin.permission(url,role_id) VALUES (?,?)`,
-		`DELETE FROM admin.permission WHERE role_id = ? AND url = ? LIMIT 1`,
+		`DELETE FROM admin.permission WHERE role_id = ? AND url = ? LIMIT 1`, // 确保正确删除多对多情况下的 url 与 role_id
 		`SELECT permission.role_id FROM admin.permission, admin.role WHERE permission.url = ? AND role.active = true AND permission.role_id = role.id LOCK IN SHARE MODE`, // 同时满足全部条件才算成功
 		`SELECT * FROM admin.permission LOCK IN SHARE MODE`,
 	}
@@ -45,7 +45,6 @@ func CreatePermissionTable(db *sql.DB) error {
 }
 
 // AddURLPermission create an associated record of the specified URL and role.
-// 通过 roleid 建立与 url 的联系
 func AddURLPermission(db *sql.DB, rid uint32, url string) error {
 	role, err := GetRoleByID(db, rid)
 	if err != nil {
@@ -86,7 +85,7 @@ func URLPermissions(db *sql.DB, url string) (map[uint32]bool, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	defer rows.Close()
 
 	for rows.Next() {
@@ -95,7 +94,7 @@ func URLPermissions(db *sql.DB, url string) (map[uint32]bool, error) {
 		}
 		result[roleID] = true
 	}
-	
+
 	return result, nil
 }
 
@@ -113,23 +112,22 @@ func Permissions(db *sql.DB) (*[]*Permission, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	defer rows.Close()
 
 	for rows.Next() {
 		if err = rows.Scan(&url, &roleID, &createdAt); err != nil {
 			return nil, err
 		}
-	
+
 		data := &Permission{
 			URL:       url,
 			RoleID:    roleID,
 			CreatedAt: createdAt,
 		}
-	
+
 		result = append(result, data)
 	}
 
 	return &result, nil
 }
-
