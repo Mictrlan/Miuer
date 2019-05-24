@@ -31,10 +31,16 @@ func (c *AdminController) ExtendJWTMiddleWare(authMW *ginjwt.GinJWTMiddleware) f
 		return ginjwt.MapClaims{}
 	}
 
+	/*
+		authMW.IdentityHandler = func(ctx *gin.Context) interface{} {
+			claims := ginjwt.ExtractClaims(ctx)
+
+			return claims["identity"]
+		}
+	*/
 	authMW.IdentityHandler = func(ctx *gin.Context) interface{} {
 		claims := ginjwt.ExtractClaims(ctx)
-
-		return claims["identity"]
+		return claims
 	}
 
 	authMW.LoginResponse = func(c *gin.Context, code int, token string, expire time.Time) {

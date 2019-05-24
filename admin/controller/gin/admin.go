@@ -75,6 +75,7 @@ func (ac *AdminController) create(ctx *gin.Context) {
 	if admin.Pwd != admin.PwdConf {
 		ctx.Error(errPwdDisagree)
 		ctx.JSON(http.StatusConflict, gin.H{"status": http.StatusConflict})
+		return
 	}
 
 	err = mysql.Create(ac.db, admin.Name, admin.Pwd, admin.Mobile, admin.Email)
